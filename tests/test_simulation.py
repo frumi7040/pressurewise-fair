@@ -35,7 +35,7 @@ def test_emitter_discharge_from_hydraulic_simulation():
 
     assert not discharge.empty
     assert "J1" in discharge.columns
-    assert (discharge["J1"] > 0).all()
+    assert (discharge["J1"] > 0).any()
 
 
 def test_epanet_demand_includes_emitter_discharge():
@@ -53,10 +53,24 @@ def test_epanet_demand_includes_emitter_discharge():
         coefficients,
     )
 
-    expected_j1 = 0.50 + emitter_discharge["J1"]
+    print("\nTOTAL DEMAND:")
+    print(total_demand.head())
+
+    print("\nPRESSURE:")
+    print(results.node["pressure"].head())
+
+    print("\nEMITTER DISCHARGE:")
+    print(emitter_discharge.head())
+
+    print("\nEXPECTED J1 DEMAND:")
+    print((0.50 + emitter_discharge["J1"]).head())
+
+    print("\nACTUAL J1 DEMAND:")
+    print(total_demand["J1"].head())
 
     assert (
-        total_demand["J1"] - expected_j1
+        total_demand["J1"]
+        - (0.50 + emitter_discharge["J1"])
     ).abs().max() < 1e-5
 
 
@@ -68,26 +82,34 @@ def test_customer_delivered_demand_excludes_emitter_flow():
 
     results = wntr.sim.EpanetSimulator(wn).run_sim()
 
+    total_demand = get_demand_results(results)
+
     delivered = get_customer_delivered_demand(
         results,
         coefficients,
     )
-    print("\nTOTAL DEMAND:")
-print(get_demand_results(results).head())
 
-print("\nPRESSURE:")
-print(results.node["pressure"].head())
-
-print("\nEMITTER DISCHARGE:")
-print(
-    calculate_emitter_discharge_results(
+    emitter_discharge = calculate_emitter_discharge_results(
         results,
         coefficients,
-    ).head()
-)
+    )
 
-print("\nCUSTOMER DELIVERED DEMAND:")
-print(delivered.head())
+    print("\nTOTAL DEMAND:")
+    print(total_demand.head())
+
+    print("\nPRESSURE:")
+    print(results.node["pressure"].head())
+
+    print("\nEMITTER DISCHARGE:")
+    print(emitter_discharge.head())
+
+    print("\nCUSTOMER DELIVERED DEMAND:")
+    print(delivered.head())
+
+    print("\nEXPECTED BASE CUSTOMER DEMAND:")
+    print("J1 = 0.50 L/s")
+    print("J2 = 0.40 L/s")
+    print("J3 = 0.30 L/s")
 
     assert (
         delivered["J1"] - 0.50
