@@ -106,6 +106,14 @@ python -m pytest -v -s
 
 GitHub Actions runs the same test suite. Passing software tests demonstrates only the behaviors covered by those tests; it does not establish field performance or utility-scale validity.
 
+To run the full synthetic search locally after installing the project:
+
+```bash
+python examples/run_synthetic_optimization.py
+```
+
+This evaluates all 1,296 combinations (six candidate settings across four six-hour periods) and writes `results/synthetic_optimization.json`. The CI workflow also runs this search on the development pull request and stores the output as a private workflow artifact. The generated data is synthetic and must not be described as utility performance.
+
 ## Limitations and validation
 
 - The current emitter implementation uses EPANET's square-root pressure relationship; arbitrary leakage exponents are not implemented in the EPANET hydraulic engine.
