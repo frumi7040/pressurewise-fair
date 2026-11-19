@@ -136,6 +136,7 @@ def evaluate_prv_schedule(
         inp_file,
         valve_id,
         schedule,
+        emitter_coefficients=dict(emitter_coefficients),
         period_hours=period_hours,
         simulation_hours=simulation_hours,
     )
