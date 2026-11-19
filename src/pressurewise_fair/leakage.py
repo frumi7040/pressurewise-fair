@@ -40,7 +40,7 @@ def apply_emitters(
     wn,
     emitter_coefficients: Mapping[str, float],
 ):
-    """Assign EPANET emitter coefficients to selected junctions."""
+    """Assign emitter coefficients to selected junctions.\n\n    WNTR uses SI units: coefficient is m^3/s/sqrt(m) for the\n    standard EPANET emitter exponent of 0.5.\n    """
     if not isinstance(emitter_coefficients, Mapping):
         raise TypeError("emitter_coefficients must be a mapping.")
 
@@ -79,7 +79,7 @@ def calculate_emitter_discharge(
     pressure: float,
     emitter_coefficient: float,
 ) -> float:
-    """Calculate EPANET emitter discharge using Q = C * sqrt(P)."""
+    """Calculate emitter discharge in m^3/s using Q = C * sqrt(P).\n\n    Inputs use WNTR SI units: pressure in metres and coefficient in\n    m^3/s/sqrt(m).\n    """
     pressure = _validate_number("pressure", pressure)
     emitter_coefficient = _validate_number(
         "emitter_coefficient",
