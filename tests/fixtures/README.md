@@ -11,7 +11,8 @@ calibrated representations of a real water distribution system.
 - `synthetic_network.inp`: a small baseline network with one reservoir,
   three demand junctions, and connecting pipes.
 - `synthetic_network_prv.inp`: a small network with a candidate pressure
-  reducing valve between junctions J1 and J2.
+  reducing valve between junctions J1 and J2, and the example leakage
+  emitter at downstream junction J2.
 
 Both fixtures use LPS flow units and the Hazen-Williams headloss model.
 Their dimensions, demands, elevations, and valve settings are illustrative
