@@ -64,10 +64,11 @@ def get_pressure_results(results):
 
 
 def get_demand_results(results):
-    """Return EPANET-reported junction demand.
+    """Return EPANET-reported nodal demand in WNTR SI units (m^3/s).
 
-    This may include emitter discharge and must not automatically
-    be interpreted as customer-delivered demand.
+    EPANET-reported demand includes both customer demand and emitter
+    discharge at emitter junctions. Convert to customer delivery by
+    subtracting the matching emitter-discharge time series.
     """
     if "demand" not in results.node:
         raise ValueError("Demand results are unavailable.")
@@ -79,9 +80,10 @@ def calculate_emitter_discharge_results(
     results,
     emitter_coefficients,
 ):
-    """Calculate emitter discharge time series for selected junctions.
+    """Calculate emitter discharge time series in m^3/s.
 
-    EPANET's standard emitter exponent is 0.5.
+    WNTR inputs use SI units: pressure in metres and emitter coefficient
+    in m^3/s/sqrt(m). EPANET's standard emitter exponent is 0.5.
     """
     if not isinstance(emitter_coefficients, dict):
         raise TypeError("emitter_coefficients must be a dictionary.")
@@ -129,12 +131,10 @@ def get_customer_delivered_demand(
     results,
     emitter_coefficients,
 ):
-    """Estimate customer-delivered demand by subtracting emitter flow.
+    """Estimate customer-delivered demand in m^3/s by subtracting emitter flow.
 
-    This calculation assumes EPANET-reported demand includes emitter
-    discharge and that the supplied coefficients match the simulated
-    network. Verify this accounting convention against the installed
-    EPANET/WNTR version before using results for research conclusions.
+    EPANET reports normal junction demand plus emitter discharge. The
+    supplied coefficients must match those used in the simulation.
     """
     total_demand = get_demand_results(results)
     emitter_discharge = calculate_emitter_discharge_results(
