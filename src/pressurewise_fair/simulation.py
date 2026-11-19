@@ -60,6 +60,7 @@ def run_prv_schedule_simulation(
     inp_file: str | Path,
     valve_id: str,
     settings: list[float] | tuple[float, ...],
+    emitter_coefficients: dict[str, float] | None = None,
     period_hours: int = 6,
     simulation_hours: int = 24,
 ):
@@ -98,6 +99,11 @@ def run_prv_schedule_simulation(
         normalized.append(float(setting))
 
     wn = load_network(inp_file)
+    if emitter_coefficients is not None:
+        from pressurewise_fair.leakage import apply_emitters
+
+        apply_emitters(wn, emitter_coefficients)
+
     try:
         valve = wn.get_link(valve_id)
     except KeyError as exc:
