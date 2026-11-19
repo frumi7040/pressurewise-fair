@@ -106,6 +106,10 @@ python -m pytest -v -s
 
 GitHub Actions runs the same test suite. Passing software tests demonstrates only the behaviors covered by those tests; it does not establish field performance or utility-scale validity.
 
+### Latest verified synthetic run
+
+GitHub Actions run #92 completed successfully on the development branch: 65 automated tests passed, all 1,296 candidate schedules were evaluated through EPANET 2.2, and 186 non-dominated Pareto candidates were identified. All 1,296 schedules met the illustrative 3.516 m minimum-pressure threshold in this synthetic fixture. The complete JSON output was uploaded as a workflow artifact. These are reproducible synthetic software-test results only; they are not utility measurements or field-validated performance.
+
 To run the full synthetic search locally after installing the project:
 
 ```bash
