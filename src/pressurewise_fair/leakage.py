@@ -21,20 +21,15 @@ def calculate_leakage(
     coefficient: float,
     exponent: float,
 ) -> float:
-    """Calculate leakage using Q = C * p**N1.
-
-    All inputs must use a consistent unit system.
-    """
+    """Calculate leakage using Q = C * p**N1."""
     pressure = _validate_number("pressure", pressure)
     coefficient = _validate_number("coefficient", coefficient)
     exponent = _validate_number("exponent", exponent)
 
     if pressure < 0:
         raise ValueError("Pressure cannot be negative.")
-
     if coefficient < 0:
         raise ValueError("Coefficient cannot be negative.")
-
     if exponent <= 0:
         raise ValueError("Exponent must be greater than zero.")
 
@@ -45,21 +40,7 @@ def apply_emitters(
     wn,
     emitter_coefficients: Mapping[str, float],
 ):
-    """Assign EPANET emitter coefficients to selected junctions.
-
-    Args:
-        wn: A WNTR WaterNetworkModel.
-        emitter_coefficients: Mapping of junction IDs to emitter
-            coefficients. Coefficients must use units consistent
-            with the network's flow and pressure units.
-
-    Returns:
-        The modified water network model.
-
-    Note:
-        Standard EPANET emitters use a fixed pressure exponent
-        of 0.5. They do not implement an arbitrary N1 exponent.
-    """
+    """Assign EPANET emitter coefficients to selected junctions."""
     if not isinstance(emitter_coefficients, Mapping):
         raise TypeError("emitter_coefficients must be a mapping.")
 
@@ -92,49 +73,24 @@ def apply_emitters(
         junction.emitter_coefficient = coefficient
 
     return wn
-    
-import math
-
-import pytest
-
-from pressurewise_fair.leakage import calculate_emitter_discharge
 
 
-def test_emitter_discharge_calculation():
-    result = calculate_emitter_discharge(pressure=16, emitter_coefficient=0.5)
+def calculate_emitter_discharge(
+    pressure: float,
+    emitter_coefficient: float,
+) -> float:
+    """Calculate EPANET emitter discharge using Q = C * sqrt(P)."""
+    pressure = _validate_number("pressure", pressure)
+    emitter_coefficient = _validate_number(
+        "emitter_coefficient",
+        emitter_coefficient,
+    )
 
-    assert result == pytest.approx(2.0)
+    if pressure < 0:
+        raise ValueError("Pressure cannot be negative.")
+    if emitter_coefficient < 0:
+        raise ValueError("Emitter coefficient cannot be negative.")
 
-
-def test_zero_pressure_gives_zero_discharge():
-    result = calculate_emitter_discharge(pressure=0, emitter_coefficient=0.5)
-
-    assert result == 0.0
-
-
-def test_zero_coefficient_gives_zero_discharge():
-    result = calculate_emitter_discharge(pressure=16, emitter_coefficient=0)
-
-    assert result == 0.0
-
-
-def test_negative_pressure_is_rejected():
-    with pytest.raises(ValueError):
-        calculate_emitter_discharge(pressure=-1, emitter_coefficient=0.5)
-
-
-def test_negative_coefficient_is_rejected():
-    with pytest.raises(ValueError):
-        calculate_emitter_discharge(pressure=16, emitter_coefficient=-0.5)
-
-
-def test_non_finite_pressure_is_rejected():
-    with pytest.raises(ValueError):
-        calculate_emitter_discharge(pressure=float("nan"), emitter_coefficient=0.5)
-
-
-def test_non_numeric_pressure_is_rejected():
-    with pytest.raises(TypeError):
-        calculate_emitter_discharge(pressure="invalid", emitter_coefficient=0.5)
+    return emitter_coefficient * math.sqrt(pressure)
 
 
