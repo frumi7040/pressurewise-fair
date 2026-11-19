@@ -23,4 +23,4 @@
 
 ## Current evidence
 
-The CI workflow has verified the synthetic fixture's baseline hydraulic behavior and, after correcting the WNTR SI emitter coefficient, the PRV diagnostic case. The integrated time-varying schedule optimizer is under automated verification. Synthetic results are not field validation.
+The CI workflow has verified the synthetic fixture's baseline hydraulic behavior and, after correcting the WNTR SI emitter coefficient, the PRV diagnostic case. GitHub Actions run #92 completed successfully: 65 tests passed and the end-to-end optimizer evaluated all 1,296 candidate schedules through EPANET 2.2, producing 186 non-dominated Pareto candidates. All schedules met the illustrative 3.516 m minimum-pressure threshold in the supplied synthetic fixture. The machine-readable output was uploaded as a workflow artifact. Synthetic results are not field validation.
