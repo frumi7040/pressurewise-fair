@@ -49,7 +49,7 @@ def test_emitter_hydraulic_diagnostics():
     print(pressures_m[["J1", "J2", "J3"]].to_string())
     print("\nTotal reported junction demand (L/s):")
     print((total_demand_m3s[["J1", "J2", "J3"]] * 1000).to_string())
-    print("\nEmitter discharge at J1 (L/s):")
+    print("\nEmitter discharge at J2 (L/s):")
     print((emitter_m3s["J2"] * 1000).to_string())
     print("\nEstimated customer-delivered demand at J2 (L/s):")
     print((delivered_m3s["J2"] * 1000).to_string())
