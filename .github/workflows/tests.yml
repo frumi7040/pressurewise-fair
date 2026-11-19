@@ -28,3 +28,17 @@ jobs:
       - name: Run unit tests with diagnostic output
         run: |
           python -m pytest -v -s
+
+      - name: Run all 1,296 synthetic PRV schedules
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/audit-and-fixes'
+        run: |
+          python examples/run_synthetic_optimization.py
+
+      - name: Upload synthetic optimization results
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/audit-and-fixes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pressurewise-fair-synthetic-optimization
+          path: results/synthetic_optimization.json
+          if-no-files-found: error
+          retention-days: 14
