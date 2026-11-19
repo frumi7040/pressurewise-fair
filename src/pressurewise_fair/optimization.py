@@ -149,10 +149,21 @@ def evaluate_prv_schedule(
         results,
         dict(emitter_coefficients),
     )
+    delivered_times = [float(value) for value in delivered.index]
+    if len(delivered_times) < 2 or delivered_times[-1] <= delivered_times[0]:
+        raise ValueError("At least two increasing hydraulic time points are required.")
+
     dsr_values = []
     dsr_by_junction = {}
+    duration_seconds = delivered_times[-1] - delivered_times[0]
     for node_id, requested_flow in requested.items():
-        mean_delivered = float(delivered[node_id].mean())
+        flow = [float(value) for value in delivered[node_id]]
+        delivered_volume = sum(
+            0.5 * (flow[i] + flow[i + 1])
+            * (delivered_times[i + 1] - delivered_times[i])
+            for i in range(len(delivered_times) - 1)
+        )
+        mean_delivered = delivered_volume / duration_seconds
         if mean_delivered < -1e-9:
             raise ValueError(
                 f"Calculated customer delivery is negative at {node_id}."
