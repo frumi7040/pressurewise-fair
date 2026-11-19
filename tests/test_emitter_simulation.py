@@ -37,14 +37,22 @@ def test_emitter_hydraulic_diagnostics():
         coefficients,
     )
 
+    print("\n=== PRESSUREWISE-FAIR HYDRAULIC DIAGNOSTICS ===")
+    print("\nJ1 pressure:")
+    print(pressures["J1"].to_string())
+
+    print("\nJ1 total reported demand:")
+    print(total_demand["J1"].to_string())
+
+    print("\nJ1 calculated emitter discharge:")
+    print(emitter_discharge["J1"].to_string())
+
+    print("\nJ1 estimated customer-delivered demand:")
+    print(delivered_demand["J1"].to_string())
+
     assert not pressures.empty
     assert not total_demand.empty
     assert not emitter_discharge.empty
     assert not delivered_demand.empty
-
-    assert "J1" in pressures.columns
-    assert "J1" in total_demand.columns
-    assert "J1" in emitter_discharge.columns
-    assert "J1" in delivered_demand.columns
-
     assert (emitter_discharge["J1"] >= 0).all()
+
