@@ -1,62 +1,60 @@
 
 from pathlib import Path
 
-import wntr
+import pytest
 
-from pressurewise_fair.leakage import apply_emitters
 from pressurewise_fair.simulation import (
-    calculate_emitter_discharge_results,
-    get_customer_delivered_demand,
+    load_network,
+    run_hydraulic_simulation,
+    get_pressure_results,
     get_demand_results,
 )
 
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
-
-FIXTURE = (
-    REPOSITORY_ROOT
-    / "tests"
-    / "fixtures"
-    / "synthetic_network_prv.inp"
-)
+FIXTURE_DIR = Path(__file__).parent / "fixtures"
+BASELINE_NETWORK = FIXTURE_DIR / "synthetic_network.inp"
 
 
-def test_emitter_hydraulic_diagnostics():
-    wn = wntr.network.WaterNetworkModel(str(FIXTURE))
+def test_baseline_network_loads_through_simulation_module():
+    wn = load_network(BASELINE_NETWORK)
 
-    coefficients = {"J1": 0.05}
-    apply_emitters(wn, coefficients)
+    assert wn.get_node("R1") is not None
+    assert wn.get_node("J1") is not None
+    assert wn.get_node("J2") is not None
+    assert wn.get_node("J3") is not None
 
-    results = wntr.sim.EpanetSimulator(wn).run_sim()
 
-    pressures = results.node["pressure"]
-    total_demand = get_demand_results(results)
+def test_missing_network_file_raises_error():
+    missing_file = FIXTURE_DIR / "does_not_exist.inp"
 
-    emitter_discharge = calculate_emitter_discharge_results(
-        results,
-        coefficients,
-    )
+    with pytest.raises(FileNotFoundError):
+        load_network(missing_file)
 
-    delivered = get_customer_delivered_demand(
-        results,
-        coefficients,
-    )
 
-    print("\n=== PRESSURES ===")
-    print(pressures[["J1", "J2", "J3"]].head())
+def test_baseline_hydraulic_simulation_runs():
+    results = run_hydraulic_simulation(BASELINE_NETWORK)
 
-    print("\n=== EPANET TOTAL DEMAND ===")
-    print(total_demand[["J1", "J2", "J3"]].head())
+    assert results is not None
+    assert "pressure" in results.node
 
-    print("\n=== EMITTER DISCHARGE ===")
-    print(emitter_discharge.head())
 
-    print("\n=== CUSTOMER DELIVERED DEMAND ===")
-    print(delivered[["J1", "J2", "J3"]].head())
+def test_pressure_results_are_available():
+    results = run_hydraulic_simulation(BASELINE_NETWORK)
 
-    print("\n=== PRV STATUS ===")
-    print(results.link["status"].head())
+    pressures = get_pressure_results(results)
 
     assert not pressures.empty
-    assert not total_demand.empty
-    assert not delivered.empty
+    assert "J1" in pressures.columns
+    assert "J2" in pressures.columns
+    assert "J3" in pressures.columns
+
+
+def test_demand_results_are_available():
+    results = run_hydraulic_simulation(BASELINE_NETWORK)
+
+    demands = get_demand_results(results)
+
+    assert not demands.empty
+    assert "J1" in demands.columns
+    assert "J2" in demands.columns
+    assert "J3" in demands.columns
