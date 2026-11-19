@@ -1,9 +1,4 @@
-"""Evaluation and Pareto filtering for candidate PRV schedules.
-
-The evaluator is injected: callers supply a hydraulic simulation function
-that applies a schedule and returns validated metrics. This module does not
-claim to implement time-varying PRV controls itself.
-"""
+"""Hydraulic evaluation and Pareto optimization for candidate PRV schedules."""
 from collections.abc import Callable, Iterable, Mapping
 from pathlib import Path
 import math
@@ -45,11 +40,10 @@ def evaluate_schedules(
         if "leakage" not in metrics or "equity" not in metrics:
             raise ValueError("evaluator must return leakage and equity.")
 
-        record = {
-            "schedule": normalized,
-            "leakage": _finite_number("leakage", metrics["leakage"]),
-            "equity": _finite_number("equity", metrics["equity"]),
-        }
+        record = dict(metrics)
+        record["schedule"] = normalized
+        record["leakage"] = _finite_number("leakage", metrics["leakage"])
+        record["equity"] = _finite_number("equity", metrics["equity"])
         if record["leakage"] < 0:
             raise ValueError("leakage cannot be negative.")
         if "minimum_pressure" in metrics:
