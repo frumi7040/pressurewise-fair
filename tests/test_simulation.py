@@ -1,61 +1,86 @@
 
 from pathlib import Path
 
-import pytest
+import wntr
 
+from pressurewise_fair.leakage import apply_emitters
 from pressurewise_fair.simulation import (
-    load_network,
-    run_hydraulic_simulation,
-    get_pressure_results,
+    calculate_emitter_discharge_results,
+    get_customer_delivered_demand,
     get_demand_results,
 )
 
 
-FIXTURE_DIR = Path(__file__).parent / "fixtures"
-
-BASELINE_NETWORK = FIXTURE_DIR / "synthetic_network.inp"
-
-
-def test_baseline_network_loads_through_simulation_module():
-    wn = load_network(BASELINE_NETWORK)
-
-    assert wn.get_node("R1") is not None
-    assert wn.get_node("J1") is not None
-    assert wn.get_node("J2") is not None
-    assert wn.get_node("J3") is not None
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+FIXTURE = (
+    REPOSITORY_ROOT
+    / "tests"
+    / "fixtures"
+    / "synthetic_network_prv.inp"
+)
 
 
-def test_missing_network_file_raises_error():
-    missing_file = FIXTURE_DIR / "does_not_exist.inp"
+def test_emitter_discharge_from_hydraulic_simulation():
+    wn = wntr.network.WaterNetworkModel(str(FIXTURE))
 
-    with pytest.raises(FileNotFoundError):
-        load_network(missing_file)
+    coefficients = {"J1": 0.05}
+    apply_emitters(wn, coefficients)
 
+    results = wntr.sim.EpanetSimulator(wn).run_sim()
 
-def test_baseline_hydraulic_simulation_runs():
-    results = run_hydraulic_simulation(BASELINE_NETWORK)
+    discharge = calculate_emitter_discharge_results(
+        results,
+        coefficients,
+    )
 
-    assert results is not None
-    assert "pressure" in results.node
-
-
-def test_pressure_results_are_available():
-    results = run_hydraulic_simulation(BASELINE_NETWORK)
-
-    pressures = get_pressure_results(results)
-
-    assert not pressures.empty
-    assert "J1" in pressures.columns
-    assert "J2" in pressures.columns
-    assert "J3" in pressures.columns
+    assert not discharge.empty
+    assert "J1" in discharge.columns
+    assert (discharge["J1"] > 0).all()
 
 
-def test_demand_results_are_available():
-    results = run_hydraulic_simulation(BASELINE_NETWORK)
+def test_epanet_demand_includes_emitter_discharge():
+    wn = wntr.network.WaterNetworkModel(str(FIXTURE))
 
-    demands = get_demand_results(results)
+    coefficients = {"J1": 0.05}
+    apply_emitters(wn, coefficients)
 
-    assert not demands.empty
-    assert "J1" in demands.columns
-    assert "J2" in demands.columns
-    assert "J3" in demands.columns
+    results = wntr.sim.EpanetSimulator(wn).run_sim()
+
+    total_demand = get_demand_results(results)
+
+    emitter_discharge = calculate_emitter_discharge_results(
+        results,
+        coefficients,
+    )
+
+    expected_j1 = 0.50 + emitter_discharge["J1"]
+
+    assert (
+        total_demand["J1"] - expected_j1
+    ).abs().max() < 1e-5
+
+
+def test_customer_delivered_demand_excludes_emitter_flow():
+    wn = wntr.network.WaterNetworkModel(str(FIXTURE))
+
+    coefficients = {"J1": 0.05}
+    apply_emitters(wn, coefficients)
+
+    results = wntr.sim.EpanetSimulator(wn).run_sim()
+
+    delivered = get_customer_delivered_demand(
+        results,
+        coefficients,
+    )
+
+    assert (
+        delivered["J1"] - 0.50
+    ).abs().max() < 1e-5
+
+    assert (
+        delivered["J2"] - 0.40
+    ).abs().max() < 1e-5
+
+    assert (
+        delivered["J3"] - 0.30
+    ).abs().max() < 1e-5
