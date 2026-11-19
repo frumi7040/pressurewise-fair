@@ -12,10 +12,8 @@ from pressurewise_fair.simulation import (
 )
 
 
-FIXTURE = (
-    Path(__file__).parent
-    / "fixtures"
-    / "synthetic_network.inp"
+FIXTURE_DIR = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
+FIXTURE = FIXTURE_DIR / "synthetic_network.inp"
 )
 
 
