@@ -28,7 +28,7 @@ def test_emitter_hydraulic_diagnostics():
     wn.options.hydraulic.pressure_exponent = 0.5
 
     # 0.05 L/s/sqrt(m) expressed in WNTR SI flow units (m^3/s/sqrt(m)).
-    coefficients = {"J1": 0.00005}
+    coefficients = {"J2": 0.00005}
     apply_emitters(wn, coefficients)
 
     results = wntr.sim.EpanetSimulator(wn).run_sim()
@@ -50,9 +50,9 @@ def test_emitter_hydraulic_diagnostics():
     print("\nTotal reported junction demand (L/s):")
     print((total_demand_m3s[["J1", "J2", "J3"]] * 1000).to_string())
     print("\nEmitter discharge at J1 (L/s):")
-    print((emitter_m3s["J1"] * 1000).to_string())
-    print("\nEstimated customer-delivered demand at J1 (L/s):")
-    print((delivered_m3s["J1"] * 1000).to_string())
+    print((emitter_m3s["J2"] * 1000).to_string())
+    print("\nEstimated customer-delivered demand at J2 (L/s):")
+    print((delivered_m3s["J2"] * 1000).to_string())
     print("\nPRV status (1=open):")
     print(results.link["status"]["V1"].to_string())
     print("\nPRV flowrate (L/s):")
@@ -65,7 +65,7 @@ def test_emitter_hydraulic_diagnostics():
     assert not emitter_m3s.empty
     assert not delivered_m3s.empty
     assert (pressures_m[["J1", "J2", "J3"]] >= 0).all().all()
-    assert (emitter_m3s["J1"] >= 0).all()
+    assert (emitter_m3s["J2"] >= 0).all()
     assert (results.link["status"]["V1"] > 0).all()
     assert (results.link["flowrate"]["V1"] > 0).all()
-    assert (delivered_m3s["J1"] >= -1e-9).all()
+    assert (delivered_m3s["J2"] >= -1e-9).all()
