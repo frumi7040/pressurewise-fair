@@ -9,7 +9,6 @@ import wntr
 
 def load_network(inp_file: str | Path):
     """Load an EPANET input network."""
-
     path = Path(inp_file)
 
     if not path.is_file():
@@ -21,17 +20,7 @@ def load_network(inp_file: str | Path):
 
 
 def run_hydraulic_simulation(inp_file: str | Path):
-    """Run an EPANET-based hydraulic simulation.
-
-    Returns:
-        A WNTR SimulationResults object.
-
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If the simulation produces invalid pressure results.
-        RuntimeError: If the simulation cannot be completed.
-    """
-
+    """Run an EPANET-based hydraulic simulation."""
     wn = load_network(inp_file)
 
     try:
@@ -54,7 +43,10 @@ def run_hydraulic_simulation(inp_file: str | Path):
 
     values = pressures.to_numpy()
 
-    if not all(math.isfinite(float(value)) for value in values.flat):
+    if not all(
+        math.isfinite(float(value))
+        for value in values.flat
+    ):
         raise ValueError(
             "Simulation returned non-finite pressure values."
         )
@@ -64,7 +56,6 @@ def run_hydraulic_simulation(inp_file: str | Path):
 
 def get_pressure_results(results):
     """Return the junction pressure time series."""
-
     if "pressure" not in results.node:
         raise ValueError("Pressure results are unavailable.")
 
@@ -74,11 +65,11 @@ def get_pressure_results(results):
 def get_demand_results(results):
     """Return the junction demand time series.
 
-    These values must not automatically be interpreted as
+    Demand must not automatically be interpreted as
     customer-delivered demand when emitter leakage is present.
     """
-
     if "demand" not in results.node:
         raise ValueError("Demand results are unavailable.")
 
     return results.node["demand"]
+
