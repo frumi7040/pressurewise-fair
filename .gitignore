@@ -25,3 +25,6 @@ env/
 *.keystore
 secrets/
 credentials/
+
+# Local optimization outputs
+results/
