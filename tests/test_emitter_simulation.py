@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 import wntr
@@ -21,6 +20,12 @@ FIXTURE = (
 def test_emitter_hydraulic_diagnostics():
     wn = wntr.network.WaterNetworkModel(str(FIXTURE))
 
+    # Explicitly select EPANET 2.2 pressure-dependent demand (PDA).
+    wn.options.hydraulic.demand_model = "PDA"
+    wn.options.hydraulic.minimum_pressure = 3.516
+    wn.options.hydraulic.required_pressure = 21.097
+    wn.options.hydraulic.pressure_exponent = 0.5
+
     coefficients = {"J1": 0.05}
     apply_emitters(wn, coefficients)
 
@@ -38,21 +43,23 @@ def test_emitter_hydraulic_diagnostics():
     )
 
     print("\n=== PRESSUREWISE-FAIR HYDRAULIC DIAGNOSTICS ===")
-    print("\nJ1 pressure:")
-    print(pressures["J1"].to_string())
-
-    print("\nJ1 total reported demand:")
-    print(total_demand["J1"].to_string())
-
-    print("\nJ1 calculated emitter discharge:")
+    print("\nAll junction pressures (m):")
+    print(pressures.to_string())
+    print("\nAll junction reported demand (L/s):")
+    print(total_demand.to_string())
+    print("\nEmitter discharge at J1 (L/s):")
     print(emitter_discharge["J1"].to_string())
-
-    print("\nJ1 estimated customer-delivered demand:")
+    print("\nEstimated customer-delivered demand at J1 (L/s):")
     print(delivered_demand["J1"].to_string())
+    print("\nPRV link status:")
+    print(results.link["status"]["V1"].to_string())
+    print("\nPRV link flowrate:")
+    print(results.link["flowrate"]["V1"].to_string())
+    print("\nPRV link setting:")
+    print(results.link["setting"]["V1"].to_string())
 
     assert not pressures.empty
     assert not total_demand.empty
     assert not emitter_discharge.empty
     assert not delivered_demand.empty
     assert (emitter_discharge["J1"] >= 0).all()
-
