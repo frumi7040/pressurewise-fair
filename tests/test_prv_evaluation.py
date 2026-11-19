@@ -17,7 +17,7 @@ def test_prv_schedule_returns_hydraulic_objectives():
         inp_file=FIXTURE,
         valve_id="V1",
         schedule=(30.0, 30.0, 30.0, 30.0),
-        emitter_coefficients={"J1": 0.00005},
+        emitter_coefficients={"J2": 0.00005},
         requested_demands={
             "J1": 0.0005,
             "J2": 0.0004,
@@ -39,7 +39,7 @@ def test_prv_schedule_evaluation_rejects_empty_customer_set():
             inp_file=FIXTURE,
             valve_id="V1",
             schedule=(30.0, 30.0, 30.0, 30.0),
-            emitter_coefficients={"J1": 0.00005},
+            emitter_coefficients={"J2": 0.00005},
             requested_demands={},
             minimum_pressure_m=3.516,
         )
@@ -52,7 +52,7 @@ def test_exhaustive_optimizer_runs_candidate_through_hydraulic_evaluator():
         inp_file=FIXTURE,
         valve_id="V1",
         candidate_settings=[30.0],
-        emitter_coefficients={"J1": 0.00005},
+        emitter_coefficients={"J2": 0.00005},
         requested_demands={
             "J1": 0.0005,
             "J2": 0.0004,
@@ -65,3 +65,32 @@ def test_exhaustive_optimizer_runs_candidate_through_hydraulic_evaluator():
     assert len(result["results"]) == 1
     assert len(result["pareto_front"]) == 1
     assert result["results"][0]["feasible"] is True
+
+
+def test_lower_prv_setting_reduces_downstream_leakage_and_service():
+    from pressurewise_fair.optimization import evaluate_prv_schedule
+
+    common = {
+        "inp_file": FIXTURE,
+        "valve_id": "V1",
+        "emitter_coefficients": {"J2": 0.00005},
+        "requested_demands": {
+            "J1": 0.0005,
+            "J2": 0.0004,
+            "J3": 0.0003,
+        },
+        "minimum_pressure_m": 3.516,
+    }
+    low = evaluate_prv_schedule(
+        **common,
+        schedule=(15.0, 15.0, 15.0, 15.0),
+    )
+    high = evaluate_prv_schedule(
+        **common,
+        schedule=(30.0, 30.0, 30.0, 30.0),
+    )
+
+    assert low["leakage_volume_m3"] < high["leakage_volume_m3"]
+    assert low["equity"] < high["equity"]
+    assert low["feasible"] is True
+    assert high["feasible"] is True
