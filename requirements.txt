@@ -1,0 +1,4 @@
+
+# PressureWise-Fair Python dependencies
+wntr
+six>=1.16.0
