@@ -12,13 +12,9 @@ from pressurewise_fair.simulation import (
 )
 
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
-FIXTURE = (
-    REPOSITORY_ROOT
-    / "tests"
-    / "fixtures"
-    / "synthetic_network.inp"
-)
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+FIXTURE = REPOSITORY_ROOT / "tests" / "fixtures" / "synthetic_network.inp"
+
 
 
 def test_emitter_discharge_from_hydraulic_simulation():
