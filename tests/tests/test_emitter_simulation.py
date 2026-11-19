@@ -12,8 +12,12 @@ from pressurewise_fair.simulation import (
 )
 
 
-FIXTURE_DIR = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
-FIXTURE = FIXTURE_DIR / "synthetic_network.inp"
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+FIXTURE = (
+    REPOSITORY_ROOT
+    / "tests"
+    / "fixtures"
+    / "synthetic_network.inp"
 )
 
 
@@ -44,10 +48,12 @@ def test_customer_delivered_demand_accounting():
     results = wntr.sim.EpanetSimulator(wn).run_sim()
 
     total_demand = get_demand_results(results)
+
     delivered_demand = get_customer_delivered_demand(
         results,
         coefficients,
     )
+
     emitter_discharge = calculate_emitter_discharge_results(
         results,
         coefficients,
