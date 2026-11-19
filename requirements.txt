@@ -1,4 +1,4 @@
 
 # PressureWise-Fair Python dependencies
-wntr
+wntr==1.5.0
 six>=1.16.0
