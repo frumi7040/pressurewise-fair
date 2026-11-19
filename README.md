@@ -2,163 +2,128 @@
 
 ### Save Water. Protect Every Community.
 
-**PressureWise-Fair** is a proposed software-based approach to equity-aware pressure management in water distribution networks. Its purpose is to investigate how pressure-driven water leakage can be reduced while protecting water service for communities that may already experience insufficient pressure.
+PressureWise-Fair is a research prototype for exploring equity-aware pressure management in water distribution networks. It evaluates pressure-driven leakage alongside customer demand satisfaction, so that pressure reduction is not judged on leakage alone.
 
-> **Project status:** Technical concept and proposed design. Hydraulic simulations, optimization results, and field validation have not yet been completed or verified. No measured water savings or service improvements are claimed.
+> **Evidence status:** The repository contains implemented hydraulic simulation, emitter accounting, time-varying PRV schedule controls, schedule evaluation, and Pareto-analysis components. These are being tested on a small synthetic network. The prototype has not been calibrated against utility data, field-validated, or deployed. No real-world water savings or service improvements are claimed.
 
----
+## The problem
 
-## 1. The Problem
+Excessive pressure can increase leakage in water distribution networks. However, reducing pressure without considering customer service can worsen supply for locations that already experience low pressure.
 
-Water distribution networks can lose treated freshwater through pipeline leakage. Excessive pressure can increase leakage, making pressure management an important water-conservation strategy.
+PressureWise-Fair explores two objectives together:
 
-However, simply reducing pressure across a network can create another problem: locations that already experience low pressure may receive even less water.
+1. Minimize simulated leakage volume.
+2. Protect demand satisfaction at eligible customer junctions, emphasizing the lower tail of service.
 
-This creates two connected challenges:
+## Implemented prototype components
 
-- **Water loss:** Treated freshwater escapes through pipeline leaks.
-- **Service inequality:** Poorly planned pressure reductions may worsen water access in already underserved locations.
-
-PressureWise-Fair explores how these two challenges can be addressed together.
-
-## 2. Our Core Idea
-
-Instead of optimizing pressure reduction solely to minimize leakage, PressureWise-Fair proposes evaluating two competing objectives:
-
-1. Minimize simulated pipeline leakage.
-2. Protect demand satisfaction in poorly served areas.
-
-The guiding principle is:
-
-**Save water without making water access worse for the communities that already receive the least.**
-
-## 3. Proposed Technical Architecture
-
-The proposed system uses the following components:
-
-| Component | Purpose |
+| Component | Current implementation |
 |---|---|
-| EPANET 2.2 | Hydraulic network simulation |
-| WNTR | Python-based water network modeling and analysis |
-| Pressure-dependent demand | Represent customer demand as pressure changes |
-| Emitter-based leakage | Estimate pressure-driven leakage |
-| Pressure Reducing Valve (PRV) | Model controlled downstream pressure |
-| Deterministic search | Evaluate candidate pressure schedules |
-| Pareto analysis | Examine leakage and equity trade-offs |
+| EPANET 2.2 / WNTR 1.5.0 | Hydraulic network loading and simulation |
+| Pressure-dependent demand | Configurable through EPANET network options |
+| Emitter-based leakage | Junction emitters and pressure-based discharge accounting |
+| Customer-demand accounting | Subtracts emitter discharge from EPANET-reported junction demand |
+| PRV control | Time-varying PRV setpoints through WNTR time controls |
+| Schedule generation | Cartesian enumeration of candidate settings across periods |
+| Schedule evaluation | Runs each schedule through the EPANET simulator |
+| Equity metric | 10th percentile of junction-level demand satisfaction ratios |
+| Pareto analysis | Minimizes leakage volume and maximizes the equity indicator |
 
-No AI or machine-learning optimizer is proposed.
+The optimization is deterministic; it does not use an AI or machine-learning optimizer.
 
-## 4. Hydraulic Modeling
+## Mathematical approach
 
-The proposed hydraulic model uses EPANET 2.2 through WNTR.
+### Pressure-driven leakage
 
-It represents:
+The generalized relationship is:
 
-- Network junctions and elevations.
-- Pipes and hydraulic characteristics.
-- Customer demand.
-- Pressure-dependent demand behavior.
-- Pressure-driven leakage.
-- Pressure control through a candidate PRV.
+\[
+Q_{leak}=C p^{N_1}
+\]
 
-The model must be configured with appropriate network data, demand assumptions, pressure parameters, and boundary conditions before meaningful results can be reported.
+The EPANET emitter implementation uses the configured emitter exponent. The current helper models the standard square-root case:
 
-## 5. Leakage Modeling
+\[
+Q_{emitter}=C\sqrt{p}
+\]
 
-Pressure-driven leakage is represented using an emitter relationship:
+WNTR stores flow in m^3/s and pressure head in metres. Emitter coefficients must use consistent SI units: m^3/s/sqrt(m).
 
-`Q_leak = C × p^N1`
+### Customer-delivered demand
 
-Where:
+EPANET reports normal junction demand plus emitter discharge. At emitter junctions, the prototype estimates customer delivery as:
 
-- `Q_leak` = modeled leakage flow.
-- `C` = emitter coefficient.
-- `p` = pressure head at the leakage location.
-- `N1` = pressure exponent.
+\[
+D_i^{del}(t)=D_i^{reported}(t)-Q_{emitter,i}(t)
+\]
 
-The coefficient, exponent, units, and leakage locations must be specified and justified for each scenario.
+### Demand satisfaction and equity
 
-## 6. Pressure Control Strategy
+\[
+DSR_i=\frac{\overline{D_i^{del}}}{D_i^{req}}
+\]
 
-The proposed approach introduces a Pressure Reducing Valve (PRV) at a suitable district inlet.
+The equity indicator is the 10th percentile of eligible junction DSR values. The current schedule evaluator expects constant requested demand values per eligible junction; demand-pattern-aware evaluation remains a limitation.
 
-The PRV is intended to regulate downstream pressure while allowing the system to examine how different pressure settings affect leakage and customer service.
+### Leakage objective
 
-An important modeling requirement is that the relevant supply paths must pass through the controlled PRV. Bypasses and alternative supply routes must be identified before evaluating district-level pressure control.
+Emitter flow is integrated over the simulation horizon using the trapezoidal rule to estimate leakage volume in cubic metres.
 
-## 7. Daily Optimization Schedule
+### Feasibility and Pareto comparison
 
-The proposed schedule evaluates:
+A schedule is feasible only if the minimum simulated pressure across eligible customer junctions meets the supplied minimum-pressure threshold. Pareto analysis minimizes leakage volume and maximizes the 10th-percentile DSR.
 
-- Four daily operating periods.
-- Six candidate PRV settings per period.
+## Daily schedule search
 
-The total number of possible schedules is:
+The current schedule simulator applies one PRV setting per operating period using simulation-time controls. The default configuration is four six-hour periods over 24 hours.
 
-`6 × 6 × 6 × 6 = 1,296`
+With six candidate settings per period:
 
-These represent possible schedules per scenario, not verified improvements.
+\[
+6^4=1,296
+\]
 
-A deterministic exhaustive search is proposed to evaluate the candidate schedules.
+This is the number of candidate schedules. It is not a claim that 1,296 hydraulic runs have already completed. A complete optimization run must record all evaluated candidates and its Pareto set.
 
-## 8. Measuring Water Service Equity
+## Synthetic test network
 
-PressureWise-Fair proposes using the Demand Satisfaction Ratio (DSR):
+The repository includes two small synthetic EPANET fixtures:
 
-`DSR_i = Delivered Customer Demand_i / Required Customer Demand_i`
+- `tests/fixtures/synthetic_network.inp`
+- `tests/fixtures/synthetic_network_prv.inp`
 
-The proposed equity indicator is the 10th percentile of demand-junction DSR values.
+They are software-test networks, not measured or calibrated representations of a real water utility. The example leakage coefficient, pressure thresholds, demands, and PRV settings are illustrative.
 
-This lower-tail measure helps evaluate whether the least-served portions of the modeled network experience unacceptable deterioration.
+## Reproducibility and tests
 
-**Important:** Customer-delivered demand must be separated from emitter discharge. Leakage must not be counted as water delivered to customers.
+Install the project and run the automated tests:
 
-## 9. Minimum Pressure Protection
+```bash
+python -m pip install -e .
+python -m pip install pytest
+python -m pytest -v -s
+```
 
-The proposed optimization also includes minimum-pressure constraints at designated critical junctions.
+GitHub Actions runs the same test suite. Passing software tests demonstrates only the behaviors covered by those tests; it does not establish field performance or utility-scale validity.
 
-These constraints are intended to prevent pressure-control strategies from violating specified service requirements.
+## Limitations and validation
 
-The thresholds must be selected and justified for the network under study; they are not universal values.
+- The current emitter implementation uses EPANET's square-root pressure relationship; arbitrary leakage exponents are not implemented in the EPANET hydraulic engine.
+- The schedule evaluator currently assumes constant requested demand per eligible junction.
+- Candidate PRV placement and all alternate supply paths must be assessed for each real network.
+- Pressure thresholds and leakage coefficients require network-specific justification and calibration.
+- A full 1,296-schedule run can be computationally expensive.
+- No utility calibration, field validation, operational deployment, measured water savings, or real-world equity improvement has been completed.
 
-## 10. Comparing Competing Strategies
+See:
+- [Technical blueprint](docs/TECHNICAL_BLUEPRINT.md)
+- [Mathematical model](docs/MATHEMATICAL_MODEL.md)
+- [Validation plan](docs/VALIDATION_PLAN.md)
+- [Limitations](docs/LIMITATIONS.md)
+- [Synthetic fixture notes](tests/fixtures/README.md)
 
-The proposed system uses Pareto analysis to examine the relationship between:
+## Long-term objective
 
-- Simulated leakage reduction.
-- Demand satisfaction and service equity.
-
-Rather than assuming that one strategy is best in every respect, the analysis will identify trade-offs between water conservation and equitable service.
-
-Any future Pareto graph must be generated from actual, documented simulation outputs. Illustrative diagrams must be labeled conceptual.
-
-## 11. Validation Plan
-
-Before optimization results can be considered credible, the following checks are required:
-
-1. **Baseline simulation:** Confirm that the selected hydraulic network runs and produces interpretable results.
-2. **Emitter isolation:** Verify emitter discharge against the specified leakage relationship in a controlled test.
-3. **Demand and leakage accounting:** Confirm that customer delivery and emitter flow are separated consistently.
-4. **PRV behavior:** Check valve operation, flow, and downstream pressure response.
-5. **Network suitability:** Verify PRV placement, alternative flow paths, pressure constraints, and simulation convergence.
-6. **Optimization verification:** Reproduce schedule counts, objective calculations, and Pareto comparisons from saved model inputs and outputs.
-
-**Current validation status:** These checks are planned. They are not represented as completed or passed.
-
-## 12. Project Status
-
-The repository will distinguish between three evidence levels:
-
-- **Proposed:** Included in the design but not yet implemented.
-- **Implemented:** A component has been built, but may not have passed validation.
-- **Validated:** A defined test has been completed and supporting evidence is documented.
-
-This distinction is essential to maintaining technical accuracy and transparency.
-
-## 13. Long-Term Vision
-
-PressureWise-Fair aims to explore a more responsible approach to water distribution pressure management.
-
-Its long-term objective is to help decision-makers consider water conservation and equitable service together, rather than treating leakage reduction as the only measure of success.
+PressureWise-Fair aims to help water-system decision-makers consider water conservation and equitable service together, rather than treating leakage reduction as the only measure of success.
 
 **PressureWise-Fair — Save Water. Protect Every Community.**
