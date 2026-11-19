@@ -103,11 +103,11 @@ def run_prv_schedule_simulation(
     except KeyError as exc:
         raise KeyError(f"PRV {valve_id!r} does not exist in the network.") from exc
 
-    if getattr(valve, "valve_type", None) != "PRV":
+    if getattr(valve, "valve_type", None) not in {"PRV", "PRValve"}:
         raise ValueError(f"Link {valve_id!r} is not a PRV.")
 
     wn.options.time.duration = simulation_hours * 3600
-    valve.setting = normalized[0]
+    valve.initial_setting = normalized[0]
 
     for period_index, setting in enumerate(normalized[1:], start=1):
         boundary_seconds = period_index * period_hours * 3600
