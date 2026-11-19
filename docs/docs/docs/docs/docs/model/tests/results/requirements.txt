@@ -1,2 +1,0 @@
-# PressureWise-Fair Python dependencies
-wntr

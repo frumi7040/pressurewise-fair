@@ -1,72 +1,76 @@
-# PressureWise-Fair — 3-minute narrated demo script
+# PressureWise-Fair — 3–4 minute narrated demo script
 
-**Purpose:** Competition presentation and live software demonstration.  
-**Target duration:** 2:50–3:00 at a steady speaking pace.  
+**Purpose:** Competition presentation and software demonstration.  
+**Target duration:** Approximately 3:30.  
 **Recording format:** 16:9 landscape, narrated screen recording.  
-**Evidence boundary:** All numerical results below come from the included synthetic test network. They are not utility measurements or field-validated outcomes.
+**Challenge area:** Water Quantity.  
+**Evidence boundary:** All numerical results are from the supplied synthetic test network. They are not utility measurements or field-validated outcomes.
 
 ## Recording preparation
 
 - Open the repository on the `audit-and-fixes` branch.
 - Have a terminal ready with the project installed and the synthetic optimization command available.
-- Have the latest successful GitHub Actions run open, including its test and optimization steps.
+- Have GitHub Actions run [#97](https://github.com/frumi7040/pressurewise-fair/actions/runs/44590378704) open, including its successful test and optimization steps.
+- Prepare the project slides and show them where useful.
 - Do not show account settings, tokens, private email addresses, browser password managers, or unrelated private repositories.
-- Keep the repository private. Do not switch its visibility to public for the recording.
+- Keep the repository private. Do not change its visibility for the recording.
 - If the live command takes too long, show the successful CI run and its completed output; do not edit or fabricate result values.
+- Replace the bracketed track placeholder with the category you are officially registered under: High School or University.
 
 ## Narration and screen directions
 
-### 0:00–0:25 — Problem
+### 0:00–0:35 — Introduction and challenge
 
-**Screen:** Title slide or README project heading.
-
-**Narration:**
-
-“Water utilities face a difficult trade-off. Reducing pressure can reduce leakage, but it can also reduce the water delivered to customers—especially communities already experiencing low pressure. PressureWise-Fair is a student research prototype that explores both outcomes together. Its central idea is simple: pressure management should be evaluated not only by water lost, but also by the service customers continue to receive.”
-
-### 0:25–0:55 — Approach
-
-**Screen:** README architecture and the technical blueprint.
+**Screen:** Title slide showing PressureWise-Fair, the presenter's name/team, and Water Quantity.
 
 **Narration:**
 
-“The prototype uses the EPANET hydraulic engine through WNTR. Pressure-dependent demand represents how customer delivery changes with pressure. EPANET emitters represent pressure-driven leakage. A pressure-reducing valve is assigned a time-varying schedule, and the model evaluates customer demand satisfaction alongside total simulated leakage volume. The equity indicator is the tenth percentile of demand-satisfaction ratios across the selected customer junctions. The search is deterministic; it does not claim to use an AI optimizer.”
+“Hello, I’m [presenter name], and this is PressureWise-Fair. I’m presenting in the [High School or University] track, addressing the Water Quantity challenge. Water systems face pressure to meet growing demand while reducing losses. But pressure management creates a difficult trade-off: reducing pressure can limit leakage, while also reducing the water delivered to customers who may already receive inadequate service. PressureWise-Fair explores how to evaluate both outcomes together.”
 
-### 0:55–1:45 — Demonstration
+### 0:35–1:10 — Technical approach
 
-**Screen:** Show the repository tree and open `examples/run_synthetic_optimization.py`. Then show the GitHub Actions run, the passing test summary, and the completed optimization step.
-
-**Narration:**
-
-“Here is the reproducible example and the synthetic network used for this demonstration. The search considers six candidate valve settings in each of four six-hour periods. That creates one thousand two hundred and ninety-six possible schedules. Each candidate is run through the hydraulic simulator; it is not merely counted as a generated combination.
-
-“In the recorded automated run, all sixty-five tests passed. The full search completed all one thousand two hundred and ninety-six hydraulic schedule evaluations and identified one hundred and eighty-six non-dominated Pareto candidates. In this synthetic example, all candidates met the illustrative minimum-pressure constraint of three point five one six metres. The complete machine-readable output was saved as a workflow artifact.”
-
-### 1:45–2:20 — Interpreting the result
-
-**Screen:** Show the optimization output or workflow artifact metadata. If opening the JSON, show only a few representative fields and avoid exposing unrelated account information.
+**Screen:** Show the project overview and a simple workflow diagram or the relevant README section.
 
 **Narration:**
 
-“A Pareto candidate is a schedule for which no other feasible schedule in this evaluated set achieves both lower simulated leakage and a higher equity score. The Pareto set therefore presents trade-offs rather than pretending there is one universally best operating point. These results demonstrate that the software workflow runs end to end on the supplied test case. They do not demonstrate savings in a real water network.”
+“The prototype uses the EPANET hydraulic engine through WNTR. Pressure-dependent demand represents how customer delivery changes with pressure. EPANET emitters represent pressure-driven leakage. A pressure-reducing valve is assigned a time-varying schedule. The model evaluates simulated leakage volume alongside customer demand satisfaction. To emphasize the lower-performing locations, it uses the tenth percentile of eligible junction demand-satisfaction ratios. The search is deterministic exhaustive enumeration; it does not claim to use an AI optimizer.”
 
-### 2:20–2:55 — Limitations and impact
+### 1:10–2:20 — Demonstration
 
-**Screen:** README limitations section.
+**Screen:** Show the repository structure, open `examples/run_synthetic_optimization.py`, then show GitHub Actions run #97 and the completed test and optimization steps.
 
 **Narration:**
 
-“The current test network is synthetic. Its demands, leakage coefficient, pressure thresholds, and valve settings are illustrative. The evaluator currently assumes constant requested demand at each selected customer junction. The prototype has not been calibrated with utility data, field-validated, or deployed, and it makes no measured water-saving claim.
+“Here is the runnable example and the synthetic network used for this software demonstration. The search considers six candidate valve settings in each of four six-hour periods, giving one thousand two hundred and ninety-six possible schedules. Each candidate schedule is evaluated through the hydraulic simulator.
 
-“Our next step is to test the approach against benchmark and utility networks, justify model parameters, and validate service and leakage estimates with field data. PressureWise-Fair is a reproducible starting point for exploring water conservation and equitable service together.”
+“In this successful automated run, the test step passed and the complete search evaluated all one thousand two hundred and ninety-six schedules. The run identified one hundred and eighty-six non-dominated Pareto candidates. All one thousand two hundred and ninety-six schedules met the illustrative minimum-pressure threshold of three point five one six metres in this particular synthetic fixture. The complete machine-readable output was uploaded as a workflow artifact.”
+
+### 2:20–2:55 — Interpreting the result
+
+**Screen:** Show the JSON artifact or a few representative result fields, taking care not to expose unrelated account information.
+
+**Narration:**
+
+“A Pareto candidate is a feasible schedule for which no other evaluated feasible schedule achieves both lower simulated leakage and a higher equity score. The Pareto set therefore shows trade-offs rather than claiming one universally best operating point. These results demonstrate that the software workflow runs end to end on the supplied test case. They do not demonstrate savings in a real water network.”
+
+### 2:55–3:30 — Limitations and next steps
+
+**Screen:** Show the limitations section of the README.
+
+**Narration:**
+
+“The current network is synthetic. Its demands, leakage coefficient, pressure thresholds, and valve settings are illustrative. The schedule evaluator assumes constant requested demand at each eligible customer junction, and customer delivery is estimated using an emitter-accounting convention that needs further validation. The prototype has not been calibrated with utility data, field-validated, or deployed. No measured water-saving claim is made.
+
+“Next, the approach needs testing on benchmark and utility networks, justified model parameters, topology and valve checks, and comparison with field data. PressureWise-Fair is a reproducible starting point for studying water conservation and equitable service together. Thank you.”
 
 ## Final recording checklist
 
-- [ ] The video contains spoken narration throughout the presentation; it is not music-only.
-- [ ] The recording includes an actual screen demonstration of the repository and successful run evidence.
-- [ ] The run shown is the successful GitHub Actions run that reports 65 passing tests and 1,296 completed schedule evaluations.
-- [ ] The 186 Pareto candidates and illustrative 3.516 m pressure threshold are described as synthetic results.
+- [ ] Runtime is between 3 and 4 minutes.
+- [ ] The presenter introduces themselves and identifies the registered High School or University track.
+- [ ] The Water Quantity challenge area is named.
+- [ ] The video explains the problem, project approach, and includes a genuine screen demonstration.
+- [ ] The displayed run is GitHub Actions run #97, with successful test and 1,296-schedule optimization steps.
+- [ ] The 186 Pareto candidates and 3.516 m threshold are described as synthetic results.
 - [ ] No real-world savings, utility calibration, deployment, or field validation are claimed.
 - [ ] No passwords, access tokens, private keys, private email addresses, or unrelated personal information appear on screen.
-- [ ] The final runtime is within the competition's three-minute limit.
-- [ ] The submitted video link is accessible to competition judges without making the source-code repository public.
+- [ ] The final video link is accessible to competition judges without making the source-code repository public.

@@ -4,7 +4,7 @@
 
 PressureWise-Fair is a research prototype for exploring equity-aware pressure management in water distribution networks. It evaluates pressure-driven leakage alongside customer demand satisfaction, so that pressure reduction is not judged on leakage alone.
 
-> **Evidence status:** The repository contains implemented hydraulic simulation, emitter accounting, time-varying PRV schedule controls, schedule evaluation, and Pareto-analysis components. These are being tested on a small synthetic network. The prototype has not been calibrated against utility data, field-validated, or deployed. No real-world water savings or service improvements are claimed.
+> **Evidence status:** The repository contains implemented hydraulic simulation, emitter accounting, time-varying PRV schedule controls, schedule evaluation, and Pareto-analysis components. These have been exercised on small synthetic networks. The prototype has not been calibrated against utility data, field-validated, or deployed. No real-world water savings or service improvements are claimed.
 
 ## The problem
 
@@ -83,9 +83,9 @@ With six candidate settings per period:
 6^4=1,296
 \]
 
-This is the number of candidate schedules. It is not a claim that 1,296 hydraulic runs have already completed. A complete optimization run must record all evaluated candidates and its Pareto set.
+A completed synthetic optimization run evaluated all 1,296 candidate schedules through EPANET 2.2. This is an observed run result, not merely the number of combinations generated.
 
-## Synthetic test network
+## Synthetic test networks
 
 The repository includes two small synthetic EPANET fixtures:
 
@@ -104,11 +104,13 @@ python -m pip install pytest
 python -m pytest -v -s
 ```
 
-GitHub Actions runs the same test suite. Passing software tests demonstrates only the behaviors covered by those tests; it does not establish field performance or utility-scale validity.
+GitHub Actions runs the test suite and, on the review branch and pull requests, runs the full synthetic optimization. Passing software tests demonstrates only the behaviors covered by those tests; it does not establish field performance or utility-scale validity.
 
 ### Latest verified synthetic run
 
-GitHub Actions run #92 completed successfully on the development branch: 65 automated tests passed, all 1,296 candidate schedules were evaluated through EPANET 2.2, and 186 non-dominated Pareto candidates were identified. All 1,296 schedules met the illustrative 3.516 m minimum-pressure threshold in this synthetic fixture. The complete JSON output was uploaded as a workflow artifact. These are reproducible synthetic software-test results only; they are not utility measurements or field-validated performance.
+GitHub Actions run [#97](https://github.com/frumi7040/pressurewise-fair/actions/runs/44590378704) completed successfully on the `audit-and-fixes` branch. The automated test step passed, all 1,296 candidate schedules were evaluated through EPANET 2.2, and 186 non-dominated Pareto candidates were identified. All 1,296 schedules met the illustrative 3.516 m minimum-pressure threshold in this synthetic fixture. The complete JSON output was uploaded as a workflow artifact.
+
+These are reproducible synthetic software-test results only. They are not utility measurements, calibrated predictions, field-validated performance, or evidence of actual water savings. The artifact is retained by GitHub Actions for a limited period and is not a permanent repository file.
 
 To run the full synthetic search locally after installing the project:
 
@@ -116,18 +118,20 @@ To run the full synthetic search locally after installing the project:
 python examples/run_synthetic_optimization.py
 ```
 
-This evaluates all 1,296 combinations (six candidate settings across four six-hour periods) and writes `results/synthetic_optimization.json`. The CI workflow also runs this search on the development pull request and stores the output as a private workflow artifact. The generated data is synthetic and must not be described as utility performance.
+This evaluates all 1,296 combinations (six candidate settings across four six-hour periods) and writes `results/synthetic_optimization.json`. The generated data is synthetic and must not be described as utility performance.
 
 ## Limitations and validation
 
 - The current emitter implementation uses EPANET's square-root pressure relationship; arbitrary leakage exponents are not implemented in the EPANET hydraulic engine.
 - The schedule evaluator currently assumes constant requested demand per eligible junction.
+- Customer-delivered demand is estimated by subtracting emitter discharge from EPANET-reported junction demand; this accounting convention and its assumptions require independent validation before real-world interpretation.
 - Candidate PRV placement and all alternate supply paths must be assessed for each real network.
 - Pressure thresholds and leakage coefficients require network-specific justification and calibration.
 - A full 1,296-schedule run can be computationally expensive.
 - No utility calibration, field validation, operational deployment, measured water savings, or real-world equity improvement has been completed.
 
 See:
+- [Project overview](docs/PROJECT_OVERVIEW.md)
 - [Technical blueprint](docs/TECHNICAL_BLUEPRINT.md)
 - [Mathematical model](docs/MATHEMATICAL_MODEL.md)
 - [Validation plan](docs/VALIDATION_PLAN.md)
