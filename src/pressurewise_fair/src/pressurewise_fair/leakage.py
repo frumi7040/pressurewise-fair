@@ -35,3 +35,27 @@ def calculate_leakage(
         raise ValueError("Exponent must be greater than zero.")
 
     return coefficient * pressure**exponent
+    
+def calculate_emitter_discharge(pressure, emitter_coefficient):
+    """
+    Calculate EPANET emitter discharge using the standard exponent of 0.5.
+
+    Formula:
+        Q = C * sqrt(P)
+
+    Pressure must be non-negative, and the emitter coefficient
+    must be non-negative.
+    """
+    import math
+
+    _validate_number(pressure, "pressure")
+    _validate_number(emitter_coefficient, "emitter_coefficient")
+
+    if pressure < 0:
+        raise ValueError("Pressure cannot be negative.")
+
+    if emitter_coefficient < 0:
+        raise ValueError("Emitter coefficient cannot be negative.")
+
+    return emitter_coefficient * math.sqrt(pressure)
+
