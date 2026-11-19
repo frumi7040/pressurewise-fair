@@ -72,6 +72,22 @@ def test_customer_delivered_demand_excludes_emitter_flow():
         results,
         coefficients,
     )
+    print("\nTOTAL DEMAND:")
+print(get_demand_results(results).head())
+
+print("\nPRESSURE:")
+print(results.node["pressure"].head())
+
+print("\nEMITTER DISCHARGE:")
+print(
+    calculate_emitter_discharge_results(
+        results,
+        coefficients,
+    ).head()
+)
+
+print("\nCUSTOMER DELIVERED DEMAND:")
+print(delivered.head())
 
     assert (
         delivered["J1"] - 0.50
