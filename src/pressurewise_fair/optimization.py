@@ -84,7 +84,7 @@ def pareto_front(
             front.append(candidate)
 
     return sorted(
-        (item[0] for item in front),
+        front,
         key=lambda item: (
             float(item["leakage"]),
             -float(item["equity"]),
