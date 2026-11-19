@@ -1,0 +1,52 @@
+
+[TITLE]
+PressureWise-Fair Synthetic Test Network
+Small synthetic network for hydraulic software testing.
+Not based on a real water distribution system.
+
+[JUNCTIONS]
+;ID       Elevation   Demand
+J1        100         0.50
+J2        105         0.40
+J3        110         0.30
+
+[RESERVOIRS]
+;ID       Head
+R1        150
+
+[PIPES]
+;ID    Node1   Node2   Length   Diameter   Roughness   MinorLoss   Status
+P1     R1      J1      1000     200        120         0           OPEN
+P2     J1      J2      800      150        120         0           OPEN
+P3     J2      J3      600      100        120         0           OPEN
+
+[OPTIONS]
+UNITS              LPS
+HEADLOSS           H-W
+SPECIFIC GRAVITY   1.0
+VISCOSITY          1.0
+TRIALS             40
+ACCURACY           0.001
+UNBALANCED         STOP
+
+[TIMES]
+DURATION           24:00
+HYDRAULIC TIMESTEP 1:00
+QUALITY TIMESTEP   5:00
+REPORT TIMESTEP    1:00
+REPORT START       0:00
+START CLOCKTIME    12:00 AM
+
+[REPORT]
+STATUS             YES
+SUMMARY            YES
+NODES              ALL
+LINKS              ALL
+
+[COORDINATES]
+R1     0      0
+J1     1      0
+J2     2      0
+J3     3      0
+
+[END]
