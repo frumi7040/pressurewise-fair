@@ -2,10 +2,11 @@ name: PressureWise-Fair Tests
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "audit-and-fixes"]
   pull_request:
     branches: ["main"]
 
+# The workflow only needs to read repository contents.
 permissions:
   contents: read
 
@@ -17,15 +18,32 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Install project and test dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .
           python -m pip install pytest
-      - name: Run unit tests
+
+      - name: Run unit tests with diagnostic output
         run: |
-          python -m pytest -v
+          python -m pytest -v -s
+
+      - name: Run all 1,296 synthetic PRV schedules
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/audit-and-fixes'
+        run: |
+          python examples/run_synthetic_optimization.py
+
+      - name: Upload synthetic optimization results
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/audit-and-fixes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pressurewise-fair-synthetic-optimization
+          path: results/synthetic_optimization.json
+          if-no-files-found: error
+          retention-days: 14

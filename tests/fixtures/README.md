@@ -2,43 +2,49 @@
 
 ## Purpose
 
-This directory contains small, reproducible EPANET network models used to test PressureWise-Fair's hydraulic simulation functionality.
+This directory contains small, synthetic EPANET input files used by the
+PressureWise-Fair automated tests. They are software test fixtures, not
+calibrated representations of a real water distribution system.
 
-## Planned Fixture
+## Included fixtures
 
-The initial synthetic network should contain:
+- `synthetic_network.inp`: a small baseline network with one reservoir,
+  three demand junctions, and connecting pipes.
+- `synthetic_network_prv.inp`: a small network with a candidate pressure
+  reducing valve between junctions J1 and J2, and the example leakage
+  emitter at downstream junction J2.
 
-- One reservoir or other suitable water supply source
-- A small network of pipes
-- Multiple demand junctions
-- At least one candidate location for a Pressure Reducing Valve (PRV)
-- Clearly documented pipe dimensions and roughness values
-- Defined customer demand patterns
-- Explicit pressure and simulation settings
+Both fixtures use LPS flow units and the Hazen-Williams headloss model.
+Their dimensions, demands, elevations, and valve settings are illustrative
+test inputs, not utility measurements.
 
-## Requirements
+## Intended use
 
-Each network fixture must:
+The fixtures support repeatable checks of network loading, hydraulic
+simulation, emitter assignment, and related software behavior.
 
-1. Use a documented EPANET-compatible input format.
-2. Have clearly defined units.
-3. Include documented source and parameter assumptions.
-4. Be small enough for repeatable automated testing.
-5. Be checked for hydraulic connectivity and valid simulation behavior.
-6. Be synthetic and clearly distinguished from real utility data.
+Passing an automated test with a fixture does not establish that:
+- the network represents real operating conditions;
+- the PRV arrangement is suitable for a real distribution system;
+- customer-delivered demand has been independently validated;
+- leakage estimates are calibrated; or
+- any water-saving or equity improvement has been achieved.
 
-## Validation
+## Validation status
 
-Before a fixture is used in automated tests, verify:
+The files are included in the repository and are used by automated tests.
+Hydraulic behavior and demand-accounting assumptions must be examined
+separately before interpreting simulation outputs as customer service or
+research results.
 
-- The network file can be loaded.
-- The hydraulic simulation completes.
-- Junction pressures are available.
-- Requested and delivered customer demand can be distinguished.
-- The candidate PRV configuration is valid.
 
-## Current Status
+## PRV fixture pressure and unit settings
 
-No synthetic EPANET network fixture is included yet.
+The PRV fixture explicitly selects EPANET pressure-dependent analysis (PDA)
+with illustrative values of 3.516 m minimum pressure, 21.097 m required
+pressure, and a 0.5 pressure exponent. These values are software-test
+parameters, not universal service standards.
 
-This document describes the intended test fixture. It does not claim that a network has been created, simulated, or validated.
+WNTR stores hydraulic flow internally in m^3/s even when the source INP file
+uses LPS. For example, an emitter coefficient of 0.05 L/s/sqrt(m) must be
+passed to WNTR as 0.00005 m^3/s/sqrt(m). Pressure is expressed in metres.
