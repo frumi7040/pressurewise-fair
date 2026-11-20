@@ -104,13 +104,26 @@ python -m pip install pytest
 python -m pytest -v -s
 ```
 
-GitHub Actions runs the test suite and, on the review branch and pull requests, runs the full synthetic optimization. Passing software tests demonstrates only the behaviors covered by those tests; it does not establish field performance or utility-scale validity.
+GitHub Actions runs the test suite and the full synthetic optimization on pushes to `main`, pushes to the development branch, and pull requests targeting `main`. Passing software tests demonstrates only the behaviors covered by those tests; it does not establish field performance or utility-scale validity.
 
 ### Latest verified synthetic run
 
-GitHub Actions run [#97](https://github.com/frumi7040/pressurewise-fair/actions/runs/44590378704) completed successfully on the `audit-and-fixes` branch. The automated test step passed, all 1,296 candidate schedules were evaluated through EPANET 2.2, and 186 non-dominated Pareto candidates were identified. All 1,296 schedules met the illustrative 3.516 m minimum-pressure threshold in this synthetic fixture. The complete JSON output was uploaded as a workflow artifact.
+The latest successful full synthetic optimization run is available from the
+[GitHub Actions workflow history](https://github.com/frumi7040/pressurewise-fair/actions).
+The run evaluated all 1,296 candidate schedules through EPANET 2.2 and identified
+186 non-dominated Pareto candidates. In the inspected result artifact, all
+1,296 schedules were marked feasible. The configured minimum-pressure
+constraint was 3.516 m; the lowest observed minimum pressure was approximately
+9.992 m. These are distinct values and should not be conflated.
 
-These are reproducible synthetic software-test results only. They are not utility measurements, calibrated predictions, field-validated performance, or evidence of actual water savings. The artifact is retained by GitHub Actions for a limited period and is not a permanent repository file.
+The complete JSON output is uploaded as a workflow artifact. GitHub Actions
+artifacts are retained for a limited period and are not permanent repository
+files. Check the latest successful run's artifact before quoting these figures
+in a presentation.
+
+These are reproducible synthetic software-test results only. They are not
+utility measurements, calibrated predictions, field-validated performance,
+or evidence of actual water savings.
 
 To run the full synthetic search locally after installing the project:
 
@@ -118,7 +131,9 @@ To run the full synthetic search locally after installing the project:
 python examples/run_synthetic_optimization.py
 ```
 
-This evaluates all 1,296 combinations (six candidate settings across four six-hour periods) and writes `results/synthetic_optimization.json`. The generated data is synthetic and must not be described as utility performance.
+This evaluates all 1,296 combinations (six candidate settings across four
+six-hour periods) and writes `results/synthetic_optimization.json`. The
+generated data is synthetic and must not be described as utility performance.
 
 ## Limitations and validation
 
