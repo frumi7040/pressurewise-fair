@@ -94,9 +94,9 @@ The default schedule configuration uses four six-hour operating periods and six 
 6^4=1,296
 \]
 
-GitHub Actions run [#97](https://github.com/frumi7040/pressurewise-fair/actions/runs/44590378704) completed successfully. The automated test step passed, the optimization step evaluated all 1,296 schedules through EPANET 2.2, and the run identified 186 non-dominated Pareto candidates. All 1,296 schedules met the illustrative 3.516 m minimum-pressure threshold in the supplied synthetic fixture. The machine-readable JSON output was uploaded as a GitHub Actions artifact.
+The latest verified successful workflow run is [#111](https://github.com/frumi7040/pressurewise-fair/actions/runs/44893400885). The automated test step completed successfully, and the optimization step evaluated all 1,296 schedules through EPANET 2.2 and identified 186 non-dominated Pareto candidates. In the uploaded result artifact, all 1,296 schedules were marked feasible. The configured minimum-pressure constraint was 3.516 m; the lowest observed minimum pressure was approximately 9.992 m. These are distinct values. The machine-readable JSON output was uploaded as a GitHub Actions artifact.
 
-These numbers describe one synthetic software test scenario. The fixture, demand values, emitter coefficient, pressure thresholds, and PRV settings are illustrative and are not calibrated to a utility network. The results must not be presented as field performance, measured water savings, or a real-world service improvement.
+These numbers describe one synthetic software-test scenario. The fixture, demand values, emitter coefficient, pressure thresholds, and PRV settings are illustrative and are not calibrated to a utility network. The results must not be presented as field performance, measured water savings, or a real-world service improvement.
 
 ## 6. Scope and limitations
 
