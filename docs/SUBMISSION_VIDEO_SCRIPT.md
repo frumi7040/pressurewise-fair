@@ -25,7 +25,7 @@
 
 **Narration:**
 
-“Hello, I’m [presenter name], and this is PressureWise-Fair. I’m presenting in the [High School or University] track, addressing the Water Quantity challenge. Water systems face pressure to meet growing demand while reducing losses. But pressure management creates a difficult trade-off: reducing pressure can limit leakage, while also reducing the water delivered to customers who may already receive inadequate service. PressureWise-Fair explores how to evaluate both outcomes together.”
+“Hello, I’m Farhana Yasmin Rumi, and this is PressureWise-Fair. I’m presenting in the [High School or University] track, addressing the Water Quantity challenge. Water systems face pressure to meet growing demand while reducing losses. But pressure management creates a difficult trade-off: reducing pressure can limit leakage, while also reducing the water delivered to customers who may already receive inadequate service. PressureWise-Fair explores how to evaluate both outcomes together.”
 
 ### 0:25–0:55 — Technical approach
 
