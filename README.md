@@ -104,7 +104,7 @@ python -m pip install pytest
 python -m pytest -v -s
 ```
 
-GitHub Actions runs the test suite and the full synthetic optimization on pushes to `main`, pushes to the development branch, and pull requests targeting `main`. Passing software tests demonstrates only the behaviors covered by those tests; it does not establish field performance or utility-scale validity.
+GitHub Actions runs the test suite and full synthetic optimization on pushes to `main` and `audit-and-fixes`, and on pull requests targeting `main`. Passing software tests demonstrates only the behaviors covered by those tests; it does not establish field performance or utility-scale validity.
 
 ### Latest verified synthetic run
 
